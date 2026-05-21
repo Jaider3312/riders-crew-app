@@ -1,96 +1,105 @@
-import React from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  TouchableOpacity, 
-  TextInput, 
-  Platform, 
-  StatusBar 
+import React, { useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Alert
 } from 'react-native';
-// Importamos la versión moderna para evitar el WARN de deprecated
-import { SafeAreaView } from 'react-native-safe-area-context';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../services/api';
 
 export default function LoginScreen({ navigation }) {
+
+  const [correo, setCorreo] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+
+    try {
+
+      const response = await api.post('/auth/login', {
+        correo,
+        password
+      });
+
+      if (response.data.success) {
+
+        await AsyncStorage.setItem(
+          'usuario',
+          JSON.stringify(response.data.usuario)
+        );
+
+        await AsyncStorage.setItem(
+          'token',
+          response.data.token
+        );
+
+        navigation.replace('Main');
+
+      } else {
+        Alert.alert('Error', 'Credenciales incorrectas');
+      }
+
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Error', 'No se pudo iniciar sesión');
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.logoText}>Riders Crew</Text>
-        <Text style={styles.subtitle}>¡Bienvenido de nuevo, motero!</Text>
+    <View style={styles.container}>
 
-        <TextInput 
-          style={styles.input} 
-          placeholder="Correo electrónico" 
-          placeholderTextColor="#94A3B8" 
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        
-        <TextInput 
-          style={styles.input} 
-          placeholder="Contraseña" 
-          secureTextEntry={true} 
-          placeholderTextColor="#94A3B8" 
-        />
+      <TextInput
+        style={styles.input}
+        placeholder="Correo"
+        value={correo}
+        onChangeText={setCorreo}
+      />
 
-        <TouchableOpacity 
-          style={styles.loginBtn}
-          onPress={() => navigation.navigate('Main')}
-        >
-          <Text style={styles.loginBtnText}>Iniciar Sesión</Text>
-        </TouchableOpacity>
+      <TextInput
+        style={styles.input}
+        placeholder="Contraseña"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
 
-        <TouchableOpacity>
-          <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleLogin}
+      >
+        <Text style={styles.buttonText}>
+          Iniciar sesión
+        </Text>
+      </TouchableOpacity>
+
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#1A2E44', 
-    justifyContent: 'center' 
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20
   },
-  content: { 
-    padding: 30, 
-    alignItems: 'center' 
+  input: {
+    backgroundColor: '#FFF',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15
   },
-  logoText: { 
-    fontSize: 35, 
-    fontWeight: 'bold', 
-    color: '#F25C05', 
-    marginBottom: 10 
+  button: {
+    backgroundColor: '#F25C05',
+    padding: 15,
+    borderRadius: 10
   },
-  subtitle: { 
-    color: '#FFF', 
-    marginBottom: 30, 
-    fontSize: 16 
-  },
-  input: { 
-    backgroundColor: '#FFF', 
-    width: '100%', 
-    padding: 15, 
-    borderRadius: 12, 
-    marginBottom: 15 
-  },
-  loginBtn: { 
-    backgroundColor: '#F25C05', 
-    width: '100%', 
-    padding: 15, 
-    borderRadius: 12, 
-    alignItems: 'center', 
-    marginTop: 10 
-  },
-  loginBtnText: { 
-    color: '#FFF', 
-    fontWeight: 'bold', 
-    fontSize: 16 
-  },
-  forgotText: { 
-    color: '#94A3B8', 
-    marginTop: 20 
+  buttonText: {
+    color: '#FFF',
+    textAlign: 'center',
+    fontWeight: 'bold'
   }
 });
