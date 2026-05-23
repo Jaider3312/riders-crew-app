@@ -3,12 +3,26 @@ from sqlalchemy.sql import func
 from database import Base
 
 class Usuario(Base):
+
     __tablename__ = "usuarios"
 
     id = Column(Integer, primary_key=True, index=True)
+
     nombre = Column(String)
+
     correo = Column(String, unique=True)
+
     password = Column(String)
+
+    descripcion = Column(
+        String,
+        default="Rider de corazón 🏍️"
+    )
+
+    foto = Column(
+        String,
+        nullable=True
+    )
 
 
 class Publicacion(Base):

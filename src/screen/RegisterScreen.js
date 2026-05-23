@@ -10,46 +10,50 @@ import {
   ScrollView
 } from 'react-native';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { Ionicons } from '@expo/vector-icons';
 
 import api from '../services/api';
 
-export default function LoginScreen({ navigation }) {
+export default function RegisterScreen({ navigation }) {
 
+  const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
-
   const [password, setPassword] = useState('');
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
+
+    if (!nombre || !correo || !password) {
+
+      Alert.alert(
+        'Error',
+        'Completa todos los campos'
+      );
+
+      return;
+    }
 
     try {
 
-      const response = await api.post('/auth/login', {
+      const response = await api.post('/auth/register', {
+        nombre,
         correo,
         password
       });
 
       if (response.data.success) {
 
-        await AsyncStorage.setItem(
-          'usuario',
-          JSON.stringify(response.data.usuario)
+        Alert.alert(
+          'Éxito',
+          'Usuario creado correctamente'
         );
 
-        await AsyncStorage.setItem(
-          'token',
-          response.data.token
-        );
-
-        navigation.replace('Main');
+        navigation.goBack();
 
       } else {
 
         Alert.alert(
           'Error',
-          'Credenciales incorrectas'
+          response.data.message
         );
       }
 
@@ -59,7 +63,7 @@ export default function LoginScreen({ navigation }) {
 
       Alert.alert(
         'Error',
-        'No se pudo iniciar sesión'
+        'No se pudo crear el usuario'
       );
     }
   };
@@ -71,15 +75,13 @@ export default function LoginScreen({ navigation }) {
       showsVerticalScrollIndicator={false}
     >
 
-      {/* LOGO */}
-
       <View style={styles.logoContainer}>
 
         <View style={styles.logoCircle}>
 
           <Ionicons
             name="bicycle"
-            size={60}
+            size={55}
             color="#FFF"
           />
 
@@ -90,14 +92,19 @@ export default function LoginScreen({ navigation }) {
         </Text>
 
         <Text style={styles.subtitle}>
-          Bienvenido nuevamente rider
+          Crea tu cuenta y empieza a rodar
         </Text>
 
       </View>
 
-      {/* FORMULARIO */}
-
       <View style={styles.formContainer}>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre completo"
+          value={nombre}
+          onChangeText={setNombre}
+        />
 
         <TextInput
           style={styles.input}
@@ -117,23 +124,19 @@ export default function LoginScreen({ navigation }) {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={handleLogin}
+          onPress={handleRegister}
         >
-
           <Text style={styles.buttonText}>
-            Iniciar sesión
+            Crear cuenta
           </Text>
-
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate('Register')}
+          onPress={() => navigation.goBack()}
         >
-
-          <Text style={styles.registerText}>
-            ¿No tienes cuenta? Crear cuenta
+          <Text style={styles.loginText}>
+            ¿Ya tienes cuenta? Inicia sesión
           </Text>
-
         </TouchableOpacity>
 
       </View>
@@ -153,12 +156,12 @@ const styles = StyleSheet.create({
 
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 45
+    marginBottom: 40
   },
 
   logoCircle: {
-    width: 120,
-    height: 120,
+    width: 110,
+    height: 110,
     borderRadius: 60,
     backgroundColor: '#F25C05',
     justifyContent: 'center',
@@ -168,7 +171,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 36,
+    fontSize: 34,
     fontWeight: 'bold',
     color: '#1A2E44'
   },
@@ -208,7 +211,7 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
 
-  registerText: {
+  loginText: {
     textAlign: 'center',
     marginTop: 25,
     color: '#F25C05',

@@ -10,6 +10,8 @@ import FeedScreen from './src/screen/FeedScreen';
 import EventosScreen from './src/screen/EventosScreen';
 import CrewsScreen from './src/screen/CrewsScreen';
 import PerfilScreen from './src/screen/PerfilScreen';
+import RegisterScreen from './src/screen/RegisterScreen';
+import EditProfileScreen from './src/screen/EditProfileScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -51,7 +53,9 @@ export default function App() {
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen}/>
         <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
